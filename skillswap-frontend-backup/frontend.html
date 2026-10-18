@@ -1,0 +1,3247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillSwap | Student Skill Exchange</title>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js">
+async function testBackendConnection() {
+    try {
+        const response = await fetch(
+            "http://localhost:8080/api/hello"
+        );
+
+        if (!response.ok) {
+            throw new Error("Backend request failed");
+        }
+
+        const message = await response.text();
+        console.log("SkillSwap backend:", message);
+
+    } catch (error) {
+        console.error("Backend connection failed:", error);
+    }
+}
+
+testBackendConnection();
+</script>
+
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Inter,Segoe UI,Arial,sans-serif;
+}
+
+:root{
+    --bg:#090812;
+    --card:rgba(22,20,38,.82);
+    --card2:#17142a;
+    --text:#f7f4ff;
+    --muted:#a7a2ba;
+    --purple:#8b5cf6;
+    --pink:#ec4899;
+    --blue:#38bdf8;
+    --green:#22c55e;
+    --yellow:#facc15;
+    --border:rgba(255,255,255,.09);
+}
+
+body{
+    background:
+      radial-gradient(circle at 10% 10%,rgba(139,92,246,.18),transparent 28%),
+      radial-gradient(circle at 90% 15%,rgba(236,72,153,.13),transparent 25%),
+      radial-gradient(circle at 50% 100%,rgba(56,189,248,.09),transparent 30%),
+      var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    overflow-x:hidden;
+}
+
+body.light{
+    --bg:#f5f3ff;
+    --card:rgba(255,255,255,.86);
+    --card2:#fff;
+    --text:#181326;
+    --muted:#6f6882;
+    --border:rgba(0,0,0,.08);
+}
+
+.spark{
+    position:fixed;
+    width:3px;
+    height:3px;
+    background:white;
+    border-radius:50%;
+    opacity:.7;
+    pointer-events:none;
+    animation:float 5s infinite ease-in-out;
+    z-index:0;
+}
+
+@keyframes float{
+    0%,100%{transform:translateY(0);opacity:.2}
+    50%{transform:translateY(-25px);opacity:1}
+}
+
+.app{
+    display:flex;
+    min-height:100vh;
+    position:relative;
+    z-index:1;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+    width:250px;
+    padding:22px 16px;
+    border-right:1px solid var(--border);
+    background:rgba(9,8,18,.76);
+    backdrop-filter:blur(22px);
+    position:fixed;
+    height:100vh;
+    left:0;
+    top:0;
+    z-index:20;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:8px 10px 25px;
+    font-size:22px;
+    font-weight:800;
+}
+
+.logoIcon{
+    width:40px;
+    height:40px;
+    border-radius:13px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+    box-shadow:0 0 25px rgba(139,92,246,.4);
+}
+
+.nav{
+    display:flex;
+    flex-direction:column;
+    gap:7px;
+}
+
+.nav button{
+    border:0;
+    background:transparent;
+    color:var(--muted);
+    padding:13px 14px;
+    border-radius:13px;
+    cursor:pointer;
+    text-align:left;
+    font-size:14px;
+    transition:.25s;
+}
+
+.nav button:hover,
+.nav button.active{
+    background:linear-gradient(90deg,rgba(139,92,246,.22),rgba(236,72,153,.08));
+    color:white;
+}
+
+.profileMini{
+    position:absolute;
+    bottom:20px;
+    left:16px;
+    right:16px;
+    padding:13px;
+    border:1px solid var(--border);
+    border-radius:17px;
+    background:var(--card);
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.avatar{
+    width:43px;
+    height:43px;
+    border-radius:50%;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(135deg,#8b5cf6,#ec4899);
+    font-weight:800;
+    color:white;
+    flex-shrink:0;
+}
+
+.profileMini small{
+    color:var(--muted);
+}
+
+/* MAIN */
+
+.main{
+    margin-left:250px;
+    width:calc(100% - 250px);
+    padding:22px 30px 60px;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.search{
+    width:430px;
+    max-width:100%;
+    background:var(--card);
+    border:1px solid var(--border);
+    padding:12px 16px;
+    border-radius:14px;
+    color:var(--text);
+    outline:none;
+}
+
+.topActions{
+    display:flex;
+    gap:9px;
+}
+
+.iconBtn{
+    width:43px;
+    height:43px;
+    border:1px solid var(--border);
+    border-radius:13px;
+    background:var(--card);
+    color:var(--text);
+    cursor:pointer;
+    font-size:18px;
+}
+
+.hero{
+    border:1px solid var(--border);
+    border-radius:26px;
+    padding:30px;
+    background:
+      linear-gradient(120deg,rgba(139,92,246,.23),rgba(236,72,153,.10)),
+      var(--card);
+    position:relative;
+    overflow:hidden;
+    margin-bottom:20px;
+}
+
+.hero:after{
+    content:"";
+    position:absolute;
+    width:280px;
+    height:280px;
+    border-radius:50%;
+    background:rgba(139,92,246,.15);
+    filter:blur(60px);
+    right:-80px;
+    top:-100px;
+}
+
+.hero h1{
+    font-size:34px;
+    margin-bottom:10px;
+}
+
+.hero p{
+    color:var(--muted);
+    max-width:650px;
+    line-height:1.6;
+}
+
+.heroBtns{
+    display:flex;
+    gap:10px;
+    margin-top:22px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    border:0;
+    padding:12px 17px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:700;
+    transition:.2s;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+.primary{
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+    color:white;
+    box-shadow:0 10px 30px rgba(139,92,246,.25);
+}
+
+.secondary{
+    background:rgba(255,255,255,.06);
+    color:var(--text);
+    border:1px solid var(--border);
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:14px;
+    margin-bottom:22px;
+}
+
+.stat{
+    padding:20px;
+    border:1px solid var(--border);
+    border-radius:19px;
+    background:var(--card);
+}
+
+.statIcon{
+    font-size:22px;
+    margin-bottom:10px;
+}
+
+.stat h2{
+    font-size:25px;
+}
+
+.stat p{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:4px;
+}
+
+/* SECTIONS */
+
+.section{
+    margin-top:25px;
+}
+
+.sectionHead{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+    gap:10px;
+}
+
+.sectionHead h2{
+    font-size:21px;
+}
+
+.sectionHead span{
+    color:var(--muted);
+    font-size:13px;
+}
+
+.aiBanner{
+    padding:18px;
+    border-radius:18px;
+    border:1px solid rgba(139,92,246,.3);
+    background:linear-gradient(90deg,rgba(139,92,246,.15),rgba(56,189,248,.07));
+    margin-bottom:20px;
+}
+
+.aiBanner strong{
+    color:#c4b5fd;
+}
+
+.matches{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+}
+
+.match{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:19px;
+    transition:.25s;
+}
+
+.match:hover{
+    transform:translateY(-5px);
+    border-color:rgba(139,92,246,.4);
+    box-shadow:0 18px 50px rgba(0,0,0,.22);
+}
+
+.matchTop{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.person{
+    display:flex;
+    align-items:center;
+    gap:11px;
+}
+
+.score{
+    font-size:12px;
+    padding:6px 9px;
+    border-radius:10px;
+    background:rgba(34,197,94,.13);
+    color:#4ade80;
+}
+
+.match h3{
+    margin-top:15px;
+}
+
+.muted{
+    color:var(--muted);
+}
+
+.tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin:12px 0;
+}
+
+.tag{
+    font-size:11px;
+    padding:6px 8px;
+    border-radius:8px;
+    background:rgba(139,92,246,.12);
+    color:#c4b5fd;
+}
+
+.matchActions{
+    display:flex;
+    gap:7px;
+}
+
+.matchActions button{
+    flex:1;
+}
+
+/* FILTER */
+
+.filters{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+}
+
+.filter{
+    padding:8px 13px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    background:var(--card);
+    color:var(--muted);
+    cursor:pointer;
+}
+
+.filter.active{
+    color:white;
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+}
+
+/* PAGE */
+
+.page{
+    display:none;
+}
+
+.page.active{
+    display:block;
+}
+
+/* SCHEDULE */
+
+.scheduleList{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.session{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+}
+
+.sessionInfo{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.dateBox{
+    width:65px;
+    height:65px;
+    border-radius:15px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(135deg,rgba(139,92,246,.25),rgba(236,72,153,.15));
+    text-align:center;
+}
+
+.dateBox strong{
+    font-size:19px;
+}
+
+.sessionActions{
+    display:flex;
+    gap:7px;
+}
+
+/* WALLET */
+
+.wallet{
+    display:grid;
+    grid-template-columns:1.2fr .8fr;
+    gap:18px;
+}
+
+.walletCard{
+    padding:28px;
+    border-radius:23px;
+    border:1px solid var(--border);
+    background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(236,72,153,.08)),var(--card);
+}
+
+.coin{
+    font-size:48px;
+    margin:15px 0;
+}
+
+.progress{
+    height:8px;
+    background:rgba(255,255,255,.08);
+    border-radius:20px;
+    overflow:hidden;
+    margin:12px 0;
+}
+
+.progress div{
+    height:100%;
+    width:60%;
+    background:linear-gradient(90deg,var(--purple),var(--pink));
+}
+
+.transaction{
+    padding:14px 0;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+}
+
+.plus{
+    color:#4ade80;
+}
+
+/* PROFILE */
+
+.profileCard{
+    max-width:850px;
+    padding:28px;
+    border-radius:22px;
+    background:var(--card);
+    border:1px solid var(--border);
+}
+
+.profileHeader{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin-bottom:25px;
+}
+
+.bigAvatar{
+    width:90px;
+    height:90px;
+    border-radius:27px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+    font-size:30px;
+    font-weight:800;
+}
+
+.skillGroup{
+    margin-top:20px;
+}
+
+.skillGroup h4{
+    margin-bottom:10px;
+}
+
+.skillPills{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.skillPill{
+    padding:8px 12px;
+    border-radius:10px;
+    background:rgba(139,92,246,.13);
+    color:#c4b5fd;
+    font-size:12px;
+}
+
+/* ANALYTICS */
+
+.analyticsGrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+}
+
+.analyticsCard{
+    padding:22px;
+    border:1px solid var(--border);
+    border-radius:20px;
+    background:var(--card);
+}
+
+.analyticsNumber{
+    font-size:33px;
+    font-weight:800;
+    margin:8px 0;
+}
+
+.bar{
+    height:9px;
+    border-radius:20px;
+    background:rgba(255,255,255,.08);
+    overflow:hidden;
+}
+
+.bar div{
+    height:100%;
+    background:linear-gradient(90deg,var(--purple),var(--pink));
+}
+
+/* MODAL */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.72);
+    backdrop-filter:blur(12px);
+    z-index:100;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modalBox{
+    width:600px;
+    max-width:100%;
+    max-height:90vh;
+    overflow:auto;
+    background:#11101d;
+    border:1px solid rgba(255,255,255,.1);
+    border-radius:23px;
+    padding:25px;
+    box-shadow:0 30px 100px rgba(0,0,0,.5);
+}
+
+.modalHead{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
+
+.close{
+    border:0;
+    background:rgba(255,255,255,.07);
+    color:white;
+    width:36px;
+    height:36px;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.formGrid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:13px;
+}
+
+.field{
+    margin-bottom:13px;
+}
+
+.field.full{
+    grid-column:1/-1;
+}
+
+.field label{
+    display:block;
+    color:var(--muted);
+    font-size:12px;
+    margin-bottom:7px;
+}
+
+.field input,
+.field select,
+.field textarea{
+    width:100%;
+    padding:12px;
+    border-radius:11px;
+    border:1px solid var(--border);
+    background:#191726;
+    color:white;
+    outline:none;
+}
+
+.field textarea{
+    min-height:90px;
+    resize:vertical;
+}
+
+/* CHAT */
+
+.chatBox{
+    width:480px;
+    max-width:100%;
+}
+
+.chatHeader{
+    display:flex;
+    align-items:center;
+    gap:11px;
+}
+
+.chatMessages{
+    height:360px;
+    overflow:auto;
+    padding:15px 4px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.message{
+    max-width:75%;
+    padding:10px 13px;
+    border-radius:14px;
+    font-size:13px;
+    line-height:1.4;
+}
+
+.message.me{
+    align-self:flex-end;
+    background:linear-gradient(135deg,var(--purple),var(--pink));
+}
+
+.message.them{
+    align-self:flex-start;
+    background:#252235;
+}
+
+.chatInput{
+    display:flex;
+    gap:7px;
+}
+
+.chatInput input{
+    flex:1;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    background:#191726;
+    color:white;
+    outline:none;
+}
+
+/* VIDEO */
+
+.videoModal{
+    width:900px;
+    max-width:100%;
+}
+
+.videoArea{
+    height:480px;
+    border-radius:18px;
+    background:#050509;
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+#localVideo{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    background:#050509;
+}
+
+.remoteVideo{
+    position:absolute;
+    right:18px;
+    top:18px;
+    width:230px;
+    height:145px;
+    border-radius:15px;
+    background:#181623;
+    border:2px solid rgba(255,255,255,.15);
+    object-fit:cover;
+}
+
+.cameraPlaceholder{
+    text-align:center;
+    color:var(--muted);
+}
+
+.videoControls{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    padding-top:15px;
+}
+
+.videoControls button{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    border:1px solid var(--border);
+    background:#211e30;
+    color:white;
+    cursor:pointer;
+}
+
+.videoControls .end{
+    background:#ef4444;
+}
+
+.callIdBox{
+    margin-top:15px;
+    padding:13px;
+    background:#191726;
+    border-radius:12px;
+    font-size:12px;
+    word-break:break-all;
+}
+
+/* TOAST */
+
+.toast{
+    position:fixed;
+    bottom:25px;
+    right:25px;
+    padding:14px 18px;
+    background:#181526;
+    border:1px solid var(--border);
+    border-radius:13px;
+    box-shadow:0 15px 50px rgba(0,0,0,.4);
+    transform:translateY(100px);
+    opacity:0;
+    transition:.3s;
+    z-index:300;
+}
+
+.toast.show{
+    transform:translateY(0);
+    opacity:1;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:1100px){
+    .stats{
+        grid-template-columns:repeat(3,1fr);
+    }
+
+    .matches{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .analyticsGrid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:800px){
+    .sidebar{
+        width:72px;
+        padding:15px 8px;
+    }
+
+    .logo span,
+    .nav button span,
+    .profileMini div:not(.avatar){
+        display:none;
+    }
+
+    .nav button{
+        text-align:center;
+        font-size:19px;
+    }
+
+    .profileMini{
+        justify-content:center;
+        padding:7px;
+    }
+
+    .main{
+        margin-left:72px;
+        width:calc(100% - 72px);
+        padding:15px;
+    }
+
+    .stats,
+    .matches,
+    .analyticsGrid,
+    .wallet{
+        grid-template-columns:1fr;
+    }
+
+    .topbar{
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .hero h1{
+        font-size:27px;
+    }
+
+    .session{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .formGrid{
+        grid-template-columns:1fr;
+    }
+
+    .field.full{
+        grid-column:auto;
+    }
+
+    .videoArea{
+        height:350px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="sparkles"></div>
+
+<div class="app">
+
+<aside class="sidebar">
+
+    <div class="logo">
+        <div class="logoIcon">⚡</div>
+        <span>SkillSwap</span>
+    </div>
+
+    <div class="nav">
+
+        <button class="active" onclick="showPage('home',this)">
+            🏠 <span>Discover</span>
+        </button>
+
+        <button onclick="showPage('matches',this)">
+            🤝 <span>My Matches</span>
+        </button>
+
+        <button onclick="showPage('schedule',this)">
+            📅 <span>Schedule</span>
+        </button>
+
+        <button onclick="showPage('wallet',this)">
+            🪙 <span>SkillCoins</span>
+        </button>
+
+        <button onclick="openNotifications()">
+            🔔 <span>Notifications</span>
+        </button>
+
+        <button onclick="openChat()">
+            💬 <span>Messages</span>
+        </button>
+
+        <button onclick="showPage('profile',this)">
+            👤 <span>My Profile</span>
+        </button>
+
+        <button onclick="showPage('analytics',this)">
+            📊 <span>Analytics</span>
+        </button>
+
+    </div>
+
+    <div class="profileMini">
+        <div class="avatar" id="sideAvatar">GD</div>
+        <div>
+            <strong id="sideName">Gargi Dhabale</strong>
+            <br>
+            <small>Online</small>
+        </div>
+    </div>
+
+</aside>
+
+<main class="main">
+
+<div class="topbar">
+
+    <input
+        class="search"
+        id="searchInput"
+        placeholder="🔎 Search skills, people..."
+        oninput="searchMatches()"
+    >
+
+    <div class="topActions">
+        <button class="iconBtn" onclick="toggleDark()">🌙</button>
+        <button class="iconBtn" onclick="openNotifications()">🔔</button>
+        <button class="iconBtn" onclick="openEditProfile()">✏️</button>
+    </div>
+
+</div>
+
+<!-- HOME -->
+
+<section class="page active" id="home">
+
+    <div class="hero">
+
+        <h1>Exchange Skills. Grow Together. 🚀</h1>
+
+        <p>
+            Learn what you need, teach what you know and connect with
+            students who match your skills through AI-powered matchmaking.
+        </p>
+
+        <div class="heroBtns">
+            <button class="btn primary" onclick="showPage('matches')">
+                ✨ Find My Match
+            </button>
+
+            <button class="btn secondary" onclick="openAddSession()">
+                📅 Add Session
+            </button>
+
+            <button class="btn secondary" onclick="openEditProfile()">
+                👤 Edit Profile
+            </button>
+        </div>
+
+    </div>
+
+    <div class="aiBanner">
+        🤖 <strong>AI Match Engine:</strong>
+        Your profile is being matched using skills you teach,
+        skills you want to learn, interests and compatibility.
+    </div>
+
+    <div class="stats">
+
+        <div class="stat">
+            <div class="statIcon">👤</div>
+            <h2 id="profilePercent">92%</h2>
+            <p>Profile Complete</p>
+        </div>
+
+        <div class="stat">
+            <div class="statIcon">🤝</div>
+            <h2>96%</h2>
+            <p>Best Match</p>
+        </div>
+
+        <div class="stat">
+            <div class="statIcon">🪙</div>
+            <h2 id="coinStat">760</h2>
+            <p>SkillCoins</p>
+        </div>
+
+        <div class="stat">
+            <div class="statIcon">🔥</div>
+            <h2 id="streakStat">12</h2>
+            <p>Day Streak</p>
+        </div>
+
+        <div class="stat">
+            <div class="statIcon">⏱️</div>
+            <h2 id="hourStat">18.4</h2>
+            <p>Hours Exchanged</p>
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <div class="sectionHead">
+            <h2>🤖 AI Recommended Partners</h2>
+            <span>Based on your skills</span>
+        </div>
+
+        <div class="filters">
+            <button class="filter active" onclick="setFilter('all',this)">All</button>
+            <button class="filter" onclick="setFilter('high',this)">80%+</button>
+            <button class="filter" onclick="setFilter('coding',this)">Coding</button>
+            <button class="filter" onclick="setFilter('design',this)">Design</button>
+            <button class="filter" onclick="setFilter('business',this)">Business</button>
+        </div>
+
+        <div class="matches" id="homeMatches"></div>
+
+    </div>
+
+</section>
+
+<!-- MATCHES -->
+
+<section class="page" id="matches">
+
+    <div class="sectionHead">
+        <div>
+            <h2>My Skill Matches 🤝</h2>
+            <span>Find someone to exchange skills with</span>
+        </div>
+
+        <button class="btn primary" onclick="openAddSession()">
+            + Schedule
+        </button>
+    </div>
+
+    <div class="filters">
+        <button class="filter active" onclick="setFilter('all',this)">All</button>
+        <button class="filter" onclick="setFilter('high',this)">80%+</button>
+        <button class="filter" onclick="setFilter('coding',this)">Coding</button>
+        <button class="filter" onclick="setFilter('design',this)">Design</button>
+        <button class="filter" onclick="setFilter('business',this)">Business</button>
+    </div>
+
+    <div class="matches" id="allMatches"></div>
+
+</section>
+
+<!-- SCHEDULE -->
+
+<section class="page" id="schedule">
+
+    <div class="sectionHead">
+        <div>
+            <h2>📅 My Schedule</h2>
+            <span>Plan your skill exchange sessions</span>
+        </div>
+
+        <button class="btn primary" onclick="openAddSession()">
+            + Add Session
+        </button>
+    </div>
+
+    <div class="scheduleList" id="scheduleList"></div>
+
+</section>
+
+<!-- WALLET -->
+
+<section class="page" id="wallet">
+
+    <div class="sectionHead">
+        <div>
+            <h2>🪙 SkillCoin Wallet</h2>
+            <span>Earn credits by exchanging your time and skills</span>
+        </div>
+
+        <button class="btn primary" onclick="openAddSession()">
+            + Credit Session
+        </button>
+    </div>
+
+    <div class="wallet">
+
+        <div class="walletCard">
+
+            <p class="muted">Available SkillCoins</p>
+
+            <div class="coin">
+                🪙 <span id="walletCoins">760</span>
+            </div>
+
+            <p class="muted">
+                10 SkillCoins = 1 hour exchanged
+            </p>
+
+            <div class="progress">
+                <div id="coinProgress"></div>
+            </div>
+
+            <small class="muted">
+                Keep exchanging skills to earn more credits.
+            </small>
+
+        </div>
+
+        <div class="walletCard">
+
+            <h3>💡 How it works</h3>
+
+            <br>
+
+            <p class="muted">
+                Teach a skill → complete session → earn SkillCoins.
+            </p>
+
+            <br>
+
+            <p>⏱️ 1 hour = <strong>10 coins</strong></p>
+            <br>
+            <p>⏱️ 2 hours = <strong>20 coins</strong></p>
+            <br>
+            <p>⏱️ 5 hours = <strong>50 coins</strong></p>
+
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h2>Recent Transactions</h2>
+
+        <div id="transactions"></div>
+
+    </div>
+
+</section>
+
+<!-- PROFILE -->
+
+<section class="page" id="profile">
+
+    <div class="sectionHead">
+        <div>
+            <h2>👤 My Profile</h2>
+            <span>Your SkillSwap identity</span>
+        </div>
+
+        <button class="btn primary" onclick="openEditProfile()">
+            ✏️ Edit Profile
+        </button>
+    </div>
+
+    <div class="profileCard">
+
+        <div class="profileHeader">
+
+            <div class="bigAvatar" id="bigAvatar">GD</div>
+
+            <div>
+                <h2 id="profileName">Gargi Dhabale</h2>
+                <p class="muted" id="profileCourse">
+                    BE Information Technology • 2nd Year
+                </p>
+                <br>
+                <span class="tag">🟢 Available for Exchange</span>
+            </div>
+
+        </div>
+
+        <p class="muted" id="profileBio">
+            BE IT Student • Skill Explorer
+        </p>
+
+        <div class="skillGroup">
+            <h4>🎓 I Can Teach</h4>
+            <div class="skillPills" id="teachSkills"></div>
+        </div>
+
+        <div class="skillGroup">
+            <h4>📚 I Want To Learn</h4>
+            <div class="skillPills" id="learnSkills"></div>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ANALYTICS -->
+
+<section class="page" id="analytics">
+
+    <div class="sectionHead">
+        <div>
+            <h2>📊 Skill Analytics</h2>
+            <span>Your learning journey</span>
+        </div>
+    </div>
+
+    <div class="analyticsGrid">
+
+        <div class="analyticsCard">
+            <p class="muted">Total Sessions</p>
+            <div class="analyticsNumber" id="analyticsSessions">18</div>
+            <div class="bar"><div style="width:72%"></div></div>
+        </div>
+
+        <div class="analyticsCard">
+            <p class="muted">Hours Exchanged</p>
+            <div class="analyticsNumber" id="analyticsHours">18.4</div>
+            <div class="bar"><div style="width:62%"></div></div>
+        </div>
+
+        <div class="analyticsCard">
+            <p class="muted">SkillCoins Earned</p>
+            <div class="analyticsNumber" id="analyticsCoins">760</div>
+            <div class="bar"><div style="width:76%"></div></div>
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <div class="walletCard">
+
+            <h3>🏆 SkillSwap Progress</h3>
+
+            <br>
+
+            <p class="muted">
+                Your consistency increases your exchange reputation.
+            </p>
+
+            <br>
+
+            <p>🔥 Learning Streak: <strong id="analyticsStreak">12 days</strong></p>
+            <br>
+            <p>🤝 Sessions: <strong id="analyticsSessionText">18</strong></p>
+            <br>
+            <p>🪙 Credits: <strong id="analyticsCoinText">760</strong></p>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+</div>
+
+
+<!-- EDIT PROFILE MODAL -->
+
+<div class="modal" id="editModal">
+
+<div class="modalBox">
+
+<div class="modalHead">
+    <h2>✏️ Edit Profile</h2>
+    <button class="close" onclick="closeModal('editModal')">×</button>
+</div>
+
+<div class="formGrid">
+
+<div class="field">
+<label>Full Name</label>
+<input id="editName">
+</div>
+
+<div class="field">
+<label>Course</label>
+<input id="editCourse">
+</div>
+
+<div class="field">
+<label>Year</label>
+<input id="editYear">
+</div>
+
+<div class="field">
+<label>Level</label>
+<select id="editLevel">
+    <option>Beginner</option>
+    <option>Intermediate</option>
+    <option>Advanced</option>
+</select>
+</div>
+
+<div class="field full">
+<label>Bio</label>
+<textarea id="editBio"></textarea>
+</div>
+
+<div class="field full">
+<label>Skills You Can Teach</label>
+<input id="editTeach" placeholder="Python, SQL, Canva">
+</div>
+
+<div class="field full">
+<label>Skills You Want To Learn</label>
+<input id="editLearn" placeholder="C++ DSA, AI/ML">
+</div>
+
+</div>
+
+<button class="btn primary" style="width:100%" onclick="saveProfile()">
+Save Profile
+</button>
+
+</div>
+</div>
+
+
+<!-- ADD SESSION MODAL -->
+
+<div class="modal" id="sessionModal">
+
+<div class="modalBox">
+
+<div class="modalHead">
+    <h2>📅 Add Skill Session</h2>
+    <button class="close" onclick="closeModal('sessionModal')">×</button>
+</div>
+
+<div class="formGrid">
+
+<div class="field">
+<label>Partner</label>
+<select id="sessionPartner"></select>
+</div>
+
+<div class="field">
+<label>Session Type</label>
+<select id="sessionType">
+    <option value="Teaching">Teaching</option>
+    <option value="Learning">Learning</option>
+    <option value="Exchange">Skill Exchange</option>
+</select>
+</div>
+
+<div class="field">
+<label>Date</label>
+<input type="date" id="sessionDate" onchange="updateDay()">
+</div>
+
+<div class="field">
+<label>Day</label>
+<input id="sessionDay" readonly>
+</div>
+
+<div class="field">
+<label>Start Time</label>
+<input type="time" id="sessionStart" onchange="calculateDuration()">
+</div>
+
+<div class="field">
+<label>End Time</label>
+<input type="time" id="sessionEnd" onchange="calculateDuration()">
+</div>
+
+<div class="field">
+<label>Mode</label>
+<select id="sessionMode">
+    <option>Online</option>
+    <option>Offline</option>
+</select>
+</div>
+
+<div class="field">
+<label>Skill / Topic</label>
+<input id="sessionTopic" placeholder="e.g. C++ Binary Search">
+</div>
+
+<div class="field full">
+
+<div style="
+padding:15px;
+border-radius:13px;
+background:rgba(139,92,246,.12);
+border:1px solid rgba(139,92,246,.2);
+">
+
+⏱️ Duration:
+<strong id="durationPreview">0 min</strong>
+
+&nbsp;&nbsp; | &nbsp;&nbsp;
+
+🪙 You'll earn:
+<strong id="coinPreview">0 coins</strong>
+
+</div>
+
+</div>
+
+</div>
+
+<button class="btn primary" style="width:100%" onclick="saveSession()">
+Create Session
+</button>
+
+</div>
+</div>
+
+
+<!-- MATCH MODAL -->
+
+<div class="modal" id="matchModal">
+
+<div class="modalBox">
+
+<div class="modalHead">
+    <h2 id="matchModalTitle">Match</h2>
+    <button class="close" onclick="closeModal('matchModal')">×</button>
+</div>
+
+<div id="matchDetails"></div>
+
+</div>
+</div>
+
+
+<!-- CHAT MODAL -->
+
+<div class="modal" id="chatModal">
+
+<div class="modalBox chatBox">
+
+<div class="modalHead">
+
+<div class="chatHeader">
+
+<div class="avatar" id="chatAvatar">AM</div>
+
+<div>
+<h3 id="chatName">Aarav Mehta</h3>
+<small class="muted">🟢 Online • SkillSwap</small>
+</div>
+
+</div>
+
+<button class="close" onclick="closeModal('chatModal')">×</button>
+
+</div>
+
+<div class="chatMessages" id="chatMessages"></div>
+
+<div class="chatInput">
+
+<input
+id="chatInput"
+placeholder="Type your message..."
+onkeydown="if(event.key==='Enter') sendMessage()"
+>
+
+<button class="btn primary" onclick="sendMessage()">Send</button>
+
+</div>
+
+</div>
+</div>
+
+
+<!-- VIDEO MODAL -->
+
+<div class="modal" id="videoModal">
+
+<div class="modalBox videoModal">
+
+<div class="modalHead">
+
+<div>
+<h2>🎥 SkillSwap Video Session</h2>
+<small class="muted" id="videoPartnerName">
+Live video session
+</small>
+</div>
+
+<button class="close" onclick="endCall()">×</button>
+
+</div>
+
+<div class="videoArea">
+
+<video id="localVideo" autoplay muted playsinline></video>
+
+<video id="remoteVideo" class="remoteVideo" autoplay playsinline></video>
+
+<div class="cameraPlaceholder" id="cameraPlaceholder">
+<div style="font-size:45px">🎥</div>
+<br>
+Starting your camera...
+</div>
+
+</div>
+
+<div class="videoControls">
+
+<button onclick="toggleCamera()" id="cameraBtn">📹</button>
+<button onclick="toggleMic()" id="micBtn">🎙️</button>
+<button class="end" onclick="endCall()">📞</button>
+
+</div>
+
+<div class="callIdBox">
+
+<strong>Your Call ID:</strong>
+
+<div id="myPeerId" style="margin-top:7px">
+Generating...
+</div>
+
+<br>
+
+<input
+id="partnerPeerId"
+placeholder="Paste partner Call ID here"
+style="
+width:100%;
+padding:10px;
+border-radius:9px;
+border:1px solid var(--border);
+background:#0e0d17;
+color:white;
+"
+>
+
+<br><br>
+
+<button class="btn primary" onclick="callPartner()" style="width:100%">
+📞 Connect Video Call
+</button>
+
+</div>
+
+</div>
+</div>
+
+
+<!-- NOTIFICATIONS -->
+
+<div class="modal" id="notificationModal">
+
+<div class="modalBox">
+
+<div class="modalHead">
+<h2>🔔 Notifications</h2>
+<button class="close" onclick="closeModal('notificationModal')">×</button>
+</div>
+
+<div class="transaction">
+<span>🤖 AI found a 96% match for you</span>
+<small class="muted">Now</small>
+</div>
+
+<div class="transaction">
+<span>🪙 Your SkillCoins are ready to use</span>
+<small class="muted">Today</small>
+</div>
+
+<div class="transaction">
+<span>📅 You have an upcoming skill session</span>
+<small class="muted">Tomorrow</small>
+</div>
+
+<div class="transaction">
+<span>🔥 Your 12-day streak is active</span>
+<small class="muted">Today</small>
+</div>
+
+</div>
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+
+/* ================================
+   DATA
+================================ */
+
+const defaultState = {
+
+profile:{
+    name:"Gargi Dhabale",
+    course:"BE Information Technology",
+    year:"2nd Year",
+    level:"Intermediate",
+    bio:"BE IT Student • Skill Explorer",
+    teach:["Python","SQL","Canva","Public Speaking"],
+    learn:["C++ DSA","Web Development","AI / ML"]
+},
+
+coins:760,
+hours:18.4,
+sessions:18,
+streak:12,
+
+schedule:[],
+
+transactions:[
+    {
+        title:"Completed SQL Session",
+        date:"Today",
+        amount:20
+    },
+    {
+        title:"Teaching Canva",
+        date:"Yesterday",
+        amount:10
+    },
+    {
+        title:"Completed DSA Exchange",
+        date:"2 days ago",
+        amount:20
+    }
+]
+
+};
+
+let state =
+JSON.parse(localStorage.getItem("skillswapData")) ||
+JSON.parse(JSON.stringify(defaultState));
+
+
+const matches = [
+
+{
+id:1,
+name:"Aarav Mehta",
+initials:"AM",
+teach:["C++","DSA","Algorithms"],
+learn:["Python","SQL"],
+category:"coding",
+score:96,
+online:true,
+level:"Advanced",
+experience:92
+},
+
+{
+id:2,
+name:"Meera Shah",
+initials:"MS",
+teach:["UI/UX","Figma","React"],
+learn:["Canva","Public Speaking"],
+category:"design",
+score:91,
+online:true,
+level:"Intermediate",
+experience:85
+},
+
+{
+id:3,
+name:"Rohan Patil",
+initials:"RP",
+teach:["SQL","Power BI","Excel"],
+learn:["Python","Web Development"],
+category:"business",
+score:88,
+online:false,
+level:"Intermediate",
+experience:82
+},
+
+{
+id:4,
+name:"Ananya Rao",
+initials:"AR",
+teach:["ML","Python","AI"],
+learn:["SQL","Canva"],
+category:"coding",
+score:86,
+online:true,
+level:"Advanced",
+experience:89
+},
+
+{
+id:5,
+name:"Kabir Joshi",
+initials:"KJ",
+teach:["Graphic Design","Canva","Branding"],
+learn:["Python","Public Speaking"],
+category:"design",
+score:83,
+online:false,
+level:"Intermediate",
+experience:78
+},
+
+{
+id:6,
+name:"Isha Kulkarni",
+initials:"IK",
+teach:["Marketing","Business Strategy"],
+learn:["SQL","Web Development"],
+category:"business",
+score:81,
+online:true,
+level:"Advanced",
+experience:87
+}
+
+];
+
+let currentFilter = "all";
+let selectedMatch = null;
+let currentChatPerson = null;
+
+let peer = null;
+let localStream = null;
+let currentCall = null;
+let cameraOn = true;
+let micOn = true;
+
+
+/* ================================
+   STORAGE
+================================ */
+
+function saveState(){
+
+localStorage.setItem(
+    "skillswapData",
+    JSON.stringify(state)
+);
+
+}
+
+
+/* ================================
+   INITIALIZATION
+================================ */
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+createSparkles();
+
+renderMatches();
+renderSchedule();
+renderTransactions();
+updateUI();
+
+});
+
+
+/* ================================
+   UI
+================================ */
+
+function updateUI(){
+
+document.getElementById("coinStat").textContent =
+state.coins;
+
+document.getElementById("walletCoins").textContent =
+state.coins;
+
+document.getElementById("hourStat").textContent =
+state.hours.toFixed(1);
+
+document.getElementById("streakStat").textContent =
+state.streak;
+
+document.getElementById("analyticsSessions").textContent =
+state.sessions;
+
+document.getElementById("analyticsHours").textContent =
+state.hours.toFixed(1);
+
+document.getElementById("analyticsCoins").textContent =
+state.coins;
+
+document.getElementById("analyticsStreak").textContent =
+state.streak + " days";
+
+document.getElementById("analyticsSessionText").textContent =
+state.sessions;
+
+document.getElementById("analyticsCoinText").textContent =
+state.coins;
+
+document.getElementById("sideName").textContent =
+state.profile.name;
+
+document.getElementById("sideAvatar").textContent =
+getInitials(state.profile.name);
+
+document.getElementById("bigAvatar").textContent =
+getInitials(state.profile.name);
+
+document.getElementById("profileName").textContent =
+state.profile.name;
+
+document.getElementById("profileCourse").textContent =
+`${state.profile.course} • ${state.profile.year}`;
+
+document.getElementById("profileBio").textContent =
+state.profile.bio;
+
+renderSkills();
+
+const progress =
+state.coins % 100;
+
+document.getElementById("coinProgress").style.width =
+progress + "%";
+
+}
+
+
+function getInitials(name){
+
+return name
+.split(" ")
+.map(x=>x[0])
+.join("")
+.substring(0,2)
+.toUpperCase();
+
+}
+
+
+/* ================================
+   PAGE NAVIGATION
+================================ */
+
+function showPage(page,button=null){
+
+document.querySelectorAll(".page")
+.forEach(p=>p.classList.remove("active"));
+
+document.getElementById(page).classList.add("active");
+
+if(button){
+
+document.querySelectorAll(".nav button")
+.forEach(b=>b.classList.remove("active"));
+
+button.classList.add("active");
+
+}
+
+if(page==="schedule")
+renderSchedule();
+
+if(page==="wallet")
+renderTransactions();
+
+}
+
+
+/* ================================
+   PROFILE
+================================ */
+
+function renderSkills(){
+
+document.getElementById("teachSkills").innerHTML =
+state.profile.teach
+.map(skill=>`<span class="skillPill">${skill}</span>`)
+.join("");
+
+document.getElementById("learnSkills").innerHTML =
+state.profile.learn
+.map(skill=>`<span class="skillPill">${skill}</span>`)
+.join("");
+
+}
+
+
+function openEditProfile(){
+
+document.getElementById("editName").value =
+state.profile.name;
+
+document.getElementById("editCourse").value =
+state.profile.course;
+
+document.getElementById("editYear").value =
+state.profile.year;
+
+document.getElementById("editLevel").value =
+state.profile.level;
+
+document.getElementById("editBio").value =
+state.profile.bio;
+
+document.getElementById("editTeach").value =
+state.profile.teach.join(", ");
+
+document.getElementById("editLearn").value =
+state.profile.learn.join(", ");
+
+document.getElementById("editModal")
+.classList.add("show");
+
+}
+
+
+function saveProfile(){
+
+state.profile.name =
+document.getElementById("editName").value.trim()
+|| "Gargi Dhabale";
+
+state.profile.course =
+document.getElementById("editCourse").value.trim()
+|| "BE Information Technology";
+
+state.profile.year =
+document.getElementById("editYear").value.trim()
+|| "2nd Year";
+
+state.profile.level =
+document.getElementById("editLevel").value;
+
+state.profile.bio =
+document.getElementById("editBio").value.trim()
+|| "BE IT Student • Skill Explorer";
+
+state.profile.teach =
+document.getElementById("editTeach").value
+.split(",")
+.map(x=>x.trim())
+.filter(Boolean);
+
+state.profile.learn =
+document.getElementById("editLearn").value
+.split(",")
+.map(x=>x.trim())
+.filter(Boolean);
+
+saveState();
+updateUI();
+
+closeModal("editModal");
+
+toast("Profile updated successfully ✨");
+
+}
+
+
+/* ================================
+   MATCHES
+================================ */
+
+function renderMatches(){
+
+const home =
+document.getElementById("homeMatches");
+
+const all =
+document.getElementById("allMatches");
+
+const filtered =
+getFilteredMatches();
+
+home.innerHTML =
+filtered.slice(0,3)
+.map(createMatchCard)
+.join("");
+
+all.innerHTML =
+filtered
+.map(createMatchCard)
+.join("");
+
+}
+
+
+function getFilteredMatches(){
+
+let list = [...matches];
+
+if(currentFilter==="high")
+list = list.filter(m=>m.score>=80);
+
+if(currentFilter!=="all" &&
+currentFilter!=="high")
+list = list.filter(m=>m.category===currentFilter);
+
+return list;
+
+}
+
+
+function createMatchCard(m){
+
+return `
+
+<div class="match">
+
+<div class="matchTop">
+
+<div class="person">
+
+<div class="avatar">${m.initials}</div>
+
+<div>
+<strong>${m.name}</strong>
+<br>
+<small class="muted">
+${m.online ? "🟢 Online" : "⚫ Offline"}
+</small>
+</div>
+
+</div>
+
+<div class="score">${m.score}%</div>
+
+</div>
+
+<h3>${m.level}</h3>
+
+<p class="muted">
+${m.experience}% experience compatibility
+</p>
+
+<div class="tags">
+
+${m.teach.map(s=>
+`<span class="tag">Teach: ${s}</span>`
+).join("")}
+
+</div>
+
+<div class="matchActions">
+
+<button
+class="btn secondary"
+onclick="openMatch(${m.id})">
+View
+</button>
+
+<button
+class="btn primary"
+onclick="connectMatch(${m.id})">
+Connect
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}
+
+
+function setFilter(filter,button){
+
+currentFilter = filter;
+
+document.querySelectorAll(".filter")
+.forEach(b=>b.classList.remove("active"));
+
+if(button)
+button.classList.add("active");
+
+renderMatches();
+
+}
+
+
+function searchMatches(){
+
+const q =
+document.getElementById("searchInput")
+.value
+.toLowerCase();
+
+document.getElementById("homeMatches").innerHTML =
+matches
+.filter(m=>
+m.name.toLowerCase().includes(q) ||
+m.teach.join(" ").toLowerCase().includes(q) ||
+m.learn.join(" ").toLowerCase().includes(q)
+)
+.map(createMatchCard)
+.join("");
+
+}
+
+
+/* ================================
+   MATCH DETAIL
+================================ */
+
+function openMatch(id){
+
+const m =
+matches.find(x=>x.id===id);
+
+if(!m)return;
+
+selectedMatch = m;
+
+document.getElementById("matchModalTitle").textContent =
+m.name;
+
+document.getElementById("matchDetails").innerHTML = `
+
+<div style="display:flex;align-items:center;gap:15px">
+
+<div class="avatar" style="width:65px;height:65px;font-size:20px">
+${m.initials}
+</div>
+
+<div>
+<h2>${m.name}</h2>
+<p class="muted">
+${m.level} • ${m.online ? "🟢 Online" : "Offline"}
+</p>
+</div>
+
+</div>
+
+<br>
+
+<div class="aiBanner">
+
+🤖 <strong>${m.score}% AI Match</strong>
+
+<br><br>
+
+Your teaching and learning goals strongly overlap
+with ${m.name}'s profile.
+
+</div>
+
+<h3>🎓 They teach</h3>
+
+<div class="tags">
+${m.teach.map(x=>
+`<span class="tag">${x}</span>`
+).join("")}
+</div>
+
+<h3>📚 They want to learn</h3>
+
+<div class="tags">
+${m.learn.map(x=>
+`<span class="tag">${x}</span>`
+).join("")}
+</div>
+
+<div style="display:flex;gap:8px;margin-top:20px">
+
+<button class="btn primary"
+onclick="openChat(${m.id})">
+💬 Chat
+</button>
+
+<button class="btn secondary"
+onclick="openVideo(${m.id})">
+🎥 Video Call
+</button>
+
+<button class="btn secondary"
+onclick="openAddSession(${m.id})">
+📅 Schedule
+</button>
+
+</div>
+
+`;
+
+document.getElementById("matchModal")
+.classList.add("show");
+
+}
+
+
+function connectMatch(id){
+
+const m =
+matches.find(x=>x.id===id);
+
+if(!m)return;
+
+toast(`🤝 Connected with ${m.name}!`);
+
+openChat(id);
+
+}
+
+
+/* ================================
+   CHAT
+================================ */
+
+function openChat(id=null){
+
+if(id){
+
+currentChatPerson =
+matches.find(x=>x.id===id);
+
+}
+
+if(!currentChatPerson)
+currentChatPerson = matches[0];
+
+document.getElementById("chatName").textContent =
+currentChatPerson.name;
+
+document.getElementById("chatAvatar").textContent =
+currentChatPerson.initials;
+
+const messages =
+JSON.parse(
+localStorage.getItem(
+"chat_"+currentChatPerson.id
+)
+) || [
+
+{
+type:"them",
+text:`Hey! I'm ${currentChatPerson.name}. Want to exchange skills?`
+},
+
+{
+type:"me",
+text:"Yes! Let's plan a SkillSwap session 🚀"
+}
+
+];
+
+renderChat(messages);
+
+document.getElementById("chatModal")
+.classList.add("show");
+
+}
+
+
+function renderChat(messages){
+
+document.getElementById("chatMessages").innerHTML =
+messages
+.map(m=>
+`<div class="message ${m.type}">
+${escapeHTML(m.text)}
+</div>`
+)
+.join("");
+
+const box =
+document.getElementById("chatMessages");
+
+box.scrollTop = box.scrollHeight;
+
+}
+
+
+function sendMessage(){
+
+const input =
+document.getElementById("chatInput");
+
+const text =
+input.value.trim();
+
+if(!text)return;
+
+const key =
+"chat_"+currentChatPerson.id;
+
+const messages =
+JSON.parse(localStorage.getItem(key)) || [];
+
+messages.push({
+type:"me",
+text:text
+});
+
+localStorage.setItem(
+key,
+JSON.stringify(messages)
+);
+
+renderChat(messages);
+
+input.value="";
+
+setTimeout(()=>{
+
+const replies=[
+"Sounds good! 👍",
+"Sure, let's do it!",
+"That skill exchange sounds interesting 🚀",
+"Let's schedule a session.",
+"Perfect! I'll be ready."
+];
+
+const reply =
+replies[Math.floor(Math.random()*replies.length)];
+
+messages.push({
+type:"them",
+text:reply
+});
+
+localStorage.setItem(
+key,
+JSON.stringify(messages)
+);
+
+renderChat(messages);
+
+},700);
+
+}
+
+
+function escapeHTML(str){
+
+const div=document.createElement("div");
+
+div.textContent=str;
+
+return div.innerHTML;
+
+}
+
+
+/* ================================
+   SESSION
+================================ */
+
+function openAddSession(matchId=null){
+
+populatePartners();
+
+if(matchId){
+
+document.getElementById("sessionPartner").value =
+matchId;
+
+}
+
+const today =
+new Date();
+
+const iso =
+today.toISOString().split("T")[0];
+
+document.getElementById("sessionDate").value =
+iso;
+
+updateDay();
+
+document.getElementById("sessionStart").value =
+"18:00";
+
+document.getElementById("sessionEnd").value =
+"19:00";
+
+calculateDuration();
+
+document.getElementById("sessionModal")
+.classList.add("show");
+
+}
+
+
+function populatePartners(){
+
+const select =
+document.getElementById("sessionPartner");
+
+select.innerHTML =
+matches
+.map(m=>
+`<option value="${m.id}">
+${m.name}
+</option>`
+)
+.join("");
+
+}
+
+
+function updateDay(){
+
+const value =
+document.getElementById("sessionDate").value;
+
+if(!value)return;
+
+const date =
+new Date(value+"T00:00:00");
+
+document.getElementById("sessionDay")
+.value =
+date.toLocaleDateString(
+"en-IN",
+{weekday:"long"}
+);
+
+}
+
+
+function calculateDuration(){
+
+const start =
+document.getElementById("sessionStart").value;
+
+const end =
+document.getElementById("sessionEnd").value;
+
+if(!start || !end)return;
+
+const [sh,sm] =
+start.split(":").map(Number);
+
+const [eh,em] =
+end.split(":").map(Number);
+
+let minutes =
+(eh*60+em)-(sh*60+sm);
+
+if(minutes<0)
+minutes=0;
+
+const hours =
+minutes/60;
+
+const coins =
+Math.round(hours*10);
+
+document.getElementById("durationPreview")
+.textContent =
+formatDuration(minutes);
+
+document.getElementById("coinPreview")
+.textContent =
+coins+" coins";
+
+}
+
+
+function formatDuration(minutes){
+
+const h =
+Math.floor(minutes/60);
+
+const m =
+minutes%60;
+
+if(h===0)
+return `${m} min`;
+
+if(m===0)
+return `${h} hr`;
+
+return `${h} hr ${m} min`;
+
+}
+
+
+function saveSession(){
+
+const partnerId =
+Number(
+document.getElementById("sessionPartner").value
+);
+
+const partner =
+matches.find(m=>m.id===partnerId);
+
+const date =
+document.getElementById("sessionDate").value;
+
+const day =
+document.getElementById("sessionDay").value;
+
+const start =
+document.getElementById("sessionStart").value;
+
+const end =
+document.getElementById("sessionEnd").value;
+
+const topic =
+document.getElementById("sessionTopic").value.trim()
+|| "Skill Exchange";
+
+const type =
+document.getElementById("sessionType").value;
+
+const mode =
+document.getElementById("sessionMode").value;
+
+if(!date || !start || !end){
+
+toast("Please fill date and time.");
+
+return;
+
+}
+
+const [sh,sm] =
+start.split(":").map(Number);
+
+const [eh,em] =
+end.split(":").map(Number);
+
+const minutes =
+(eh*60+em)-(sh*60+sm);
+
+if(minutes<=0){
+
+toast("End time must be after start time.");
+
+return;
+
+}
+
+const hours =
+minutes/60;
+
+const coins =
+Math.round(hours*10);
+
+state.schedule.push({
+
+id:Date.now(),
+
+partnerId,
+
+partner:partner.name,
+
+initials:partner.initials,
+
+date,
+
+day,
+
+start,
+
+end,
+
+duration:minutes,
+
+topic,
+
+type,
+
+mode,
+
+completed:false,
+
+coins
+
+});
+
+saveState();
+
+renderSchedule();
+
+closeModal("sessionModal");
+
+showPage("schedule");
+
+toast(
+`📅 Session created! ${coins} SkillCoins after completion.`
+);
+
+}
+
+
+function renderSchedule(){
+
+const box =
+document.getElementById("scheduleList");
+
+if(!state.schedule.length){
+
+box.innerHTML = `
+
+<div class="walletCard">
+
+<h3>📅 No sessions yet</h3>
+
+<br>
+
+<p class="muted">
+Create your first SkillSwap session and start earning credits.
+</p>
+
+<br>
+
+<button class="btn primary"
+onclick="openAddSession()">
++ Create Session
+</button>
+
+</div>
+
+`;
+
+return;
+
+}
+
+box.innerHTML =
+state.schedule
+.sort((a,b)=>a.date.localeCompare(b.date))
+.map(s=>`
+
+<div class="session">
+
+<div class="sessionInfo">
+
+<div class="dateBox">
+
+<strong>${new Date(s.date+"T00:00:00").getDate()}</strong>
+
+<small>
+${new Date(s.date+"T00:00:00")
+.toLocaleDateString("en-IN",{month:"short"})}
+</small>
+
+</div>
+
+<div>
+
+<h3>${s.topic}</h3>
+
+<p class="muted">
+with ${s.partner}
+</p>
+
+<br>
+
+<small>
+📅 ${s.day} &nbsp;
+⏰ ${s.start} - ${s.end} &nbsp;
+⏱️ ${formatDuration(s.duration)}
+</small>
+
+<br><br>
+
+<span class="tag">
+${s.mode}
+</span>
+
+<span class="tag">
+🪙 ${s.coins} coins
+</span>
+
+</div>
+
+</div>
+
+<div class="sessionActions">
+
+${
+s.completed
+?
+`<span class="tag">✅ Completed</span>`
+:
+`
+<button class="btn primary"
+onclick="completeSession(${s.id})">
+Complete
+</button>
+`
+}
+
+<button class="btn secondary"
+onclick="deleteSession(${s.id})">
+🗑️
+</button>
+
+</div>
+
+</div>
+
+`).join("");
+
+}
+
+
+function completeSession(id){
+
+const session =
+state.schedule.find(s=>s.id===id);
+
+if(!session || session.completed)
+return;
+
+session.completed=true;
+
+state.hours +=
+session.duration/60;
+
+state.coins +=
+session.coins;
+
+state.sessions++;
+
+state.transactions.unshift({
+
+title:`Completed ${session.topic} with ${session.partner}`,
+
+date:"Just now",
+
+amount:session.coins
+
+});
+
+saveState();
+
+updateUI();
+
+renderSchedule();
+
+renderTransactions();
+
+toast(
+`🎉 Session completed! +${session.coins} SkillCoins`
+);
+
+}
+
+
+function deleteSession(id){
+
+state.schedule =
+state.schedule.filter(s=>s.id!==id);
+
+saveState();
+
+renderSchedule();
+
+toast("Session removed.");
+
+}
+
+
+/* ================================
+   TRANSACTIONS
+================================ */
+
+function renderTransactions(){
+
+document.getElementById("transactions").innerHTML =
+state.transactions
+.slice(0,8)
+.map(t=>`
+
+<div class="transaction">
+
+<div>
+<strong>${t.title}</strong>
+<br>
+<small class="muted">${t.date}</small>
+</div>
+
+<div class="plus">
++${t.amount} 🪙
+</div>
+
+</div>
+
+`)
+.join("");
+
+}
+
+
+/* ================================
+   VIDEO CALL
+================================ */
+
+async function openVideo(id=null){
+
+let partner =
+id ? matches.find(m=>m.id===id) : selectedMatch;
+
+if(!partner)
+partner=matches[0];
+
+document.getElementById("videoPartnerName")
+.textContent =
+`Live session with ${partner.name}`;
+
+document.getElementById("videoModal")
+.classList.add("show");
+
+document.getElementById("cameraPlaceholder")
+.style.display="block";
+
+try{
+
+localStream =
+await navigator.mediaDevices.getUserMedia({
+video:true,
+audio:true
+});
+
+const video =
+document.getElementById("localVideo");
+
+video.srcObject =
+localStream;
+
+document.getElementById("cameraPlaceholder")
+.style.display="none";
+
+cameraOn=true;
+micOn=true;
+
+startPeer();
+
+}catch(error){
+
+console.error(error);
+
+document.getElementById("cameraPlaceholder").innerHTML = `
+
+<div style="font-size:45px">📷</div>
+
+<br>
+
+<strong>Camera/Microphone permission required</strong>
+
+<br><br>
+
+<small>
+Allow camera and microphone access in your browser
+to show your real video.
+</small>
+
+`;
+
+toast("Please allow camera and microphone.");
+
+}
+
+}
+
+
+function startPeer(){
+
+if(peer){
+
+try{
+peer.destroy();
+}catch(e){}
+
+}
+
+peer =
+new Peer();
+
+peer.on("open",id=>{
+
+document.getElementById("myPeerId")
+.textContent=id;
+
+});
+
+peer.on("call",call=>{
+
+call.answer(localStream);
+
+call.on("stream",remoteStream=>{
+
+document.getElementById("remoteVideo")
+.srcObject=remoteStream;
+
+});
+
+currentCall=call;
+
+});
+
+peer.on("error",error=>{
+
+console.log(error);
+
+toast("Video connection error.");
+
+});
+
+}
+
+
+function callPartner(){
+
+const partnerId =
+document.getElementById("partnerPeerId")
+.value.trim();
+
+if(!partnerId){
+
+toast("Enter partner Call ID.");
+
+return;
+
+}
+
+if(!peer || !localStream){
+
+toast("Camera is not ready.");
+
+return;
+
+}
+
+const call =
+peer.call(partnerId,localStream);
+
+currentCall=call;
+
+call.on("stream",remoteStream=>{
+
+document.getElementById("remoteVideo")
+.srcObject=remoteStream;
+
+toast("🎥 Video connected!");
+
+});
+
+call.on("close",()=>{
+
+document.getElementById("remoteVideo")
+.srcObject=null;
+
+});
+
+}
+
+
+function toggleCamera(){
+
+if(!localStream)return;
+
+cameraOn=!cameraOn;
+
+localStream
+.getVideoTracks()
+.forEach(track=>{
+track.enabled=cameraOn;
+});
+
+document.getElementById("cameraBtn")
+.textContent =
+cameraOn ? "📹" : "🚫";
+
+}
+
+
+function toggleMic(){
+
+if(!localStream)return;
+
+micOn=!micOn;
+
+localStream
+.getAudioTracks()
+.forEach(track=>{
+track.enabled=micOn;
+});
+
+document.getElementById("micBtn")
+.textContent =
+micOn ? "🎙️" : "🔇";
+
+}
+
+
+function endCall(){
+
+if(currentCall){
+
+try{
+currentCall.close();
+}catch(e){}
+
+currentCall=null;
+
+}
+
+if(peer){
+
+try{
+peer.destroy();
+}catch(e){}
+
+peer=null;
+
+}
+
+if(localStream){
+
+localStream
+.getTracks()
+.forEach(track=>track.stop());
+
+localStream=null;
+
+}
+
+document.getElementById("localVideo")
+.srcObject=null;
+
+document.getElementById("remoteVideo")
+.srcObject=null;
+
+document.getElementById("videoModal")
+.classList.remove("show");
+
+}
+
+
+/* ================================
+   NOTIFICATIONS
+================================ */
+
+function openNotifications(){
+
+document.getElementById("notificationModal")
+.classList.add("show");
+
+}
+
+
+/* ================================
+   DARK MODE
+================================ */
+
+function toggleDark(){
+
+document.body.classList.toggle("light");
+
+localStorage.setItem(
+"skillswapTheme",
+document.body.classList.contains("light")
+? "light"
+: "dark"
+);
+
+}
+
+
+/* ================================
+   MODALS
+================================ */
+
+function closeModal(id){
+
+document.getElementById(id)
+.classList.remove("show");
+
+}
+
+document.querySelectorAll(".modal")
+.forEach(modal=>{
+
+modal.addEventListener("click",e=>{
+
+if(e.target===modal)
+modal.classList.remove("show");
+
+});
+
+});
+
+
+/* ================================
+   TOAST
+================================ */
+
+function toast(message){
+
+const box =
+document.getElementById("toast");
+
+box.textContent=message;
+
+box.classList.add("show");
+
+setTimeout(()=>{
+box.classList.remove("show");
+},2800);
+
+}
+
+
+/* ================================
+   SPARKLES
+================================ */
+
+function createSparkles(){
+
+const container =
+document.getElementById("sparkles");
+
+for(let i=0;i<45;i++){
+
+const s =
+document.createElement("div");
+
+s.className="spark";
+
+s.style.left =
+Math.random()*100+"%";
+
+s.style.top =
+Math.random()*100+"%";
+
+s.style.animationDelay =
+Math.random()*5+"s";
+
+s.style.animationDuration =
+3+Math.random()*5+"s";
+
+container.appendChild(s);
+
+}
+
+}
+
+
+/* ================================
+   THEME RESTORE
+================================ */
+
+if(
+localStorage.getItem("skillswapTheme")
+==="light"
+){
+
+document.body.classList.add("light");
+
+}
+
+</script>
+
+</body>
+</html>
+
+
